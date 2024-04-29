@@ -1,0 +1,48 @@
+import re
+
+# Define token types using regular expressions
+TOKEN_TYPES = [
+    ('INT', r'\d+'),
+    ('FLOAT', r'\d+\.\d+'),
+    ('keyword', r'int|float|if|else|while'),
+    ('IDENTIFIER', r'[a-zA-Z_]\w*'),
+    ('OPERATOR', r'[\+\-\*/]'),
+    ('LPAREN', r'\('),
+    ('RPAREN', r'\)'),
+    ('WHITESPACE', r'\s+')
+]
+
+
+def tokenize(input_string):
+    tokens = []
+    position = 0
+
+    while position < len(input_string):
+        match = None
+        for token_type, pattern in TOKEN_TYPES:
+            regex = re.compile(pattern)
+            match = regex.match(input_string, position)
+            if match:
+                value = match.group(0)
+                if token_type != 'WHITESPACE':
+                    tokens.append((token_type, value))
+                break
+        if not match:
+            print("Invalid character:", input_string[position])
+            position += 1
+        else:
+            position = match.end()
+    return tokens
+
+
+# Read input code from file
+def read_input_file(filename):
+    with open(filename, 'r') as file:
+        return file.read()
+
+
+# Test the lexer
+filename = "input_code.txt"  # Change this to your input file name
+input_code = read_input_file(filename)
+tokens = tokenize(input_code)
+print(tokens)
