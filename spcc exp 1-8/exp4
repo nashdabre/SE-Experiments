@@ -1,0 +1,98 @@
+tempCount = 1
+
+def generateAssignmentCode():
+    global tempCount
+    expression = "a = b * c + d"
+    print("Expression:", expression)
+    parts = expression.split(" = ")
+    lhs = parts[0].strip()
+    rhs = parts[1].strip()
+    terms = rhs.split(" ")
+    result = lhs
+    code = ""
+    for i in range(len(terms)):
+        if terms[i] == "+" or terms[i] == "*":
+            op = terms[i]
+            operand1 = terms[i - 1]
+            operand2 = terms[i + 1]
+            temp = "t" + str(tempCount)
+            tempCount += 1
+            code += temp + " = " + operand1 + " " + op + " " + operand2 + ";\n"
+            terms[i + 1] = temp
+    code += result + " = " + terms[-1] + ";"
+    print("Three-address code:")
+    print(code)
+
+def generateConditionalCode():
+    global tempCount
+    expression = "if (a < b) then c = d + e else c = d - e"
+    print("Expression:", expression)
+    parts = expression.split(" then ")
+    condition = parts[0][3:].strip()
+    thenPart = parts[1].split(" else ")[0].strip()
+    elsePart = parts[1].split(" else ")[1].strip()
+    trueLabel = "L" + str(tempCount)
+    tempCount += 1
+    endLabel = "L" + str(tempCount)
+    tempCount += 1
+    code = "if " + condition + " goto " + trueLabel + ";\n"
+    code += elsePart + " goto " + endLabel + ";\n"
+    code += trueLabel + ": " + thenPart + " goto " + endLabel + ";\n"
+    code += endLabel + ":"
+    print("Three-address code:")
+    print(code)
+
+def generateCopyCode():
+    expression = "x = y"
+    print("Expression:", expression)
+    parts = expression.split(" = ")
+    target = parts[0].strip()
+    source = parts[1].strip()
+    code = target + " = " + source + ";"
+    print("Three-address code:")
+    print(code)
+
+def generateIndexedAssignmentCode():
+    global tempCount
+    expression = "x[2] = y + 5"
+    print("Expression:", expression)
+    parts = expression.split(" = ")
+    target = parts[0].strip()
+    operation = parts[1].strip()
+    startIndex = target.index('[')
+    endIndex = target.index(']')
+    arrayName = target[:startIndex].strip()
+    index = target[startIndex + 1:endIndex].strip()
+    operationParts = operation.split()
+    operand1 = operationParts[0]
+    operator = operationParts[1]
+    operand2 = operationParts[2]
+    intermediateVar = "T" + str(tempCount)
+    tempCount += 1
+    code = intermediateVar + " = " + operand1 + " " + operator + " " + operand2 + ";\n"
+    code += arrayName + "[" + index + "] = " + intermediateVar + ";"
+    print("Three-address code:")
+    print(code)
+
+def main():
+    while True:
+        print("Generate three-address code for: 1) Assignment 2) Conditional 3) Indexed Assignment 4) Copy 5) Exit")
+        choice = int(input("Enter your choice: "))
+        print()
+        if choice == 1:
+            generateAssignmentCode()
+        elif choice == 2:
+            generateConditionalCode()
+        elif choice == 3:
+            generateIndexedAssignmentCode()
+        elif choice == 4:
+            generateCopyCode()
+        elif choice == 5:
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please enter a number from 1 to 5.")
+        print()
+
+if __name__ == "__main__":
+    main()
