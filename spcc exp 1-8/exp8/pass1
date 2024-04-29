@@ -1,0 +1,28 @@
+mntc = 1
+mdtc = 1
+
+with open("input.txt", "r") as fp1, \
+        open("mnt.txt", "w") as fp2, \
+        open("mdt.txt", "w") as fp3, \
+        open("copyfile.txt", "w") as fp4:
+
+    label, opcode, operand = fp1.readline().split()
+    while opcode != "END":
+        if opcode == "MACRO":
+            label, opcode, operand = fp1.readline().split()
+            fp2.write(f"{mntc} {opcode} {mdtc}\n")
+            mntc += 1
+
+            while opcode != "MEND":
+                fp3.write(f"{mdtc} {label} {opcode} {operand}\n")
+                mdtc += 1
+                label, opcode, operand = fp1.readline().split()
+
+            fp3.write(f"{mdtc} {label} {opcode} {operand}\n")
+            mdtc += 1
+        else:
+            fp4.write(f"{label} {opcode} {operand}\n")
+
+        label, opcode, operand = fp1.readline().split()
+
+    fp4.write(f"{label} {opcode} {operand}\n")
