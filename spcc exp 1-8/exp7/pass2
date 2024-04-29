@@ -1,53 +1,33 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+def main():
+    with open("input.txt", "r") as fp1, open("mot.txt", "r") as fp2, open("output.txt", "r") as fp3, \
+         open("outTable.txt", "w") as fp4, open("BT.txt", "w") as fp5:
+        
+        locctr, label, opcode, operand = fp3.readline().split()  # START line 1 - ignore
+        locctr, label, opcode, operand = fp3.readline().split()  # USING Line 2
 
-int main(){
-    char label[10],opcode[10],operand[10],mnemonic[10],locctr[10],mlabel[10];
-    
-    FILE *fp1,*fp2,*fp3,*fp4,*fp5;
-    
-    fp1 = fopen("input.txt","r");       //input
-    fp2 = fopen("mot.txt","r");         //input
-    fp3 = fopen("output.txt","r");      //input
-    fp4 = fopen("outTable.txt","w");    //output
-    fp5 = fopen("BT.txt","w");          //output
-    
-    fscanf(fp3,"%s %s %s %s",locctr,label,opcode,operand); //START line 1 ignore
-    fscanf(fp3,"%s %s %s %s",locctr,label,opcode,operand); //USING Line 2
-    
-    fprintf(fp5,"Y  %c%c    00 00 00",operand[2],operand[3]); //Base table 
-    
-    fscanf(fp3,"%s %s %s %s",locctr,label,opcode,operand);
-    
-    while(strcmp(opcode,"END")!=0){
-        
-        if(strcmp(opcode,"DC")==0){
-            fprintf(fp4,"%s\t%c\n",locctr,operand[2]);
-        }
-        else if(strcmp(opcode,"DS")==0){
-            fprintf(fp4,"%s\t_\n",locctr);
-        }
-        else{
-            fscanf(fp2,"%s %s",mnemonic,mlabel);
-            while(strcmp(mnemonic,"end")!=0){
-                if(strcmp(opcode,mnemonic)==0){
-                    fprintf(fp4,"%s\t%s\n",mlabel,operand);
-                    break;
-                }
-                fscanf(fp2,"%s %s",mnemonic,mlabel);
-            }
-            rewind(fp2);
-        }
-        
-        fscanf(fp3,"%s %s %s %s",locctr,label,opcode,operand);
-        
-    }
-    fclose(fp1);
-    fclose(fp2);
-    fclose(fp3);
-    fclose(fp4);
-    fclose(fp5);
-    
-    return 0;
-}
+        fp5.write(f"Y  {operand[2:4]}    00 00 00")  # Base table
+
+        locctr, label, opcode, operand = fp3.readline().split()
+
+        while opcode != "END":
+            if opcode == "DC":
+                fp4.write(f"{locctr}\t{operand[2]}\n")
+            elif opcode == "DS":
+                fp4.write(f"{locctr}\t_\n")
+            else:
+                fp2.seek(0)
+                for line in fp2:
+                    parts = line.split()
+                    if len(parts) < 2:
+                        continue  # Skip lines without two values
+                    mnemonic, mlabel = parts
+                    if mnemonic == "end":
+                        break
+                    if opcode == mnemonic:
+                        fp4.write(f"{mlabel}\t{operand}\n")
+                        break
+
+            locctr, label, opcode, operand = fp3.readline().split()
+
+if __name__ == "__main__":
+    main()
