@@ -1,46 +1,39 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+def main():
+    locctr = 0
+    fp1 = open("input.txt", "r")
+    fp2 = open("mot.txt", "r")
+    fp3 = open("output.txt", "w")
+    fp4 = open("st.txt", "w")
+    
+    label, opcode, operand = fp1.readline().split()
+    fp3.write(f"{locctr} {label} {opcode} {operand}\n")
+    
+    label, opcode, operand = fp1.readline().split()
+    fp3.write(f"{locctr} {label} {opcode} {operand}\n")
+    
+    while opcode != "END":
+        if opcode == "DC" or opcode == "DS":
+            fp4.write(f"{label} {locctr}\n")
+            fp3.write(f"{locctr} {label} {opcode} {operand}\n")
+            locctr += 4
+        else:
+            mnemonic = fp2.readline().strip()
+            fp3.write(f"{locctr} {label} {opcode} {operand}\n")
+            while mnemonic != "END":
+                if opcode == mnemonic:
+                    locctr += 4
+                    break
+                mnemonic = fp2.readline().strip()
+            fp2.seek(0)
+        
+        label, opcode, operand = fp1.readline().split()
+    
+    fp3.write(f"{locctr} {label} {opcode} {operand}\n")
+    
+    fp1.close()
+    fp2.close()
+    fp3.close()
+    fp4.close()
 
-int main() {
-    char label[10], opcode[10], operand[10], mnemonic[10];
-    int locctr = 0;
-    FILE *fp1, *fp2, *fp3, *fp4;
-    fp1 = fopen("input.txt", "r");
-    fp2 = fopen("mot.txt", "r");
-    fp3 = fopen("output.txt", "w");
-    fp4 = fopen("st.txt", "w");
-    
-    fscanf(fp1, "%s %s %s", label, opcode, operand); // Start opcode
-    fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
-    
-    fscanf(fp1, "%s %s %s", label, opcode, operand); // Using opcode
-    fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
-    
-    while (strcmp(opcode, "END") != 0) {
-        if (strcmp(opcode, "DC") == 0 || strcmp(opcode, "DS") == 0) {
-            fprintf(fp4, "%s %d\n", label, locctr);
-            fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
-            locctr += 4;
-        } else {
-            fscanf(fp2, "%s", mnemonic);
-            fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
-            while (strcmp(mnemonic, "END") != 0) {
-                if (strcmp(opcode, mnemonic) == 0) {
-                    locctr += 4;
-                    break;
-                }
-                fscanf(fp2, "%s", mnemonic);
-            }
-            rewind(fp2);
-        }
-        fscanf(fp1, "%s %s %s", label, opcode, operand);
-    }
-    fprintf(fp3, "%d %s %s %s\n", locctr, label, opcode, operand);
-    
-    fclose(fp1);
-    fclose(fp2);
-    fclose(fp3);
-    fclose(fp4);
-    return 0;
-}
+if __name__ == "__main__":
+    main()
