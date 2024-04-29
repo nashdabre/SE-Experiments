@@ -1,0 +1,100 @@
+import java.util.Scanner;
+
+public class Main {
+    private static char[] input;
+    private static int cursor;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the string:");
+        input = scanner.nextLine().replaceAll("\\s", "").toCharArray(); // Remove whitespace characters
+        cursor = 0;
+        System.out.println();
+        System.out.println("Input\t\tAction");
+        System.out.println("--------------------------");
+        if (E() && cursor == input.length) {
+            System.out.println("--------------------------");
+            System.out.println("String is successfully parsed");
+        } else {
+            System.out.println("--------------------------");
+            System.out.println("Error in parsing String");
+        }
+    }
+
+    private static boolean E() {
+        System.out.printf("%-16s E -> T E'\n", new String(input, cursor, input.length - cursor));
+        if (T()) {
+            if (Edash())
+                return true;
+            else
+                return false;
+        } else
+            return false;
+    }
+
+    private static boolean Edash() {
+        if (cursor < input.length && input[cursor] == '+') {
+            System.out.printf("%-16s E'-> +T E'\n", new String(input, cursor, input.length - cursor));
+            cursor++;
+            if (T()) {
+                if (Edash())
+                    return true;
+                else
+                    return false;
+            } else
+                return false;
+        } else {
+            System.out.printf("%-16s E'-> $\n", new String(input, cursor, input.length - cursor));
+            return true;
+        }
+    }
+
+    private static boolean T() {
+        System.out.printf("%-16s T->F T'\n", new String(input, cursor, input.length - cursor));
+        if (F()) {
+            if (Tdash())
+                return true;
+            else
+                return false;
+        } else
+            return false;
+    }
+
+    private static boolean Tdash() {
+        if (cursor < input.length && input[cursor] == '*') {
+            System.out.printf("%-16s T'->* F T'\n", new String(input, cursor, input.length - cursor));
+            cursor++;
+            if (F()) {
+                return true;
+            } else
+                return false;
+        } else {
+            System.out.printf("%-16s T' -> $\n", new String(input, cursor, input.length - cursor));
+            return true;
+        }
+    }
+
+    private static boolean F() {
+        if (cursor < input.length && input[cursor] == '(') {
+            System.out.printf("%-16s F -> (E)\n", new String(input, cursor, input.length - cursor));
+            cursor++;
+            if (E()) {
+                if (cursor < input.length && input[cursor] == ')') {
+                    cursor++;
+                    return true;
+                } else
+                    return false;
+            } else
+                return false;
+        } else if (cursor < input.length && input[cursor] == 'i') {
+            cursor++;
+            if (cursor < input.length && input[cursor] == 'd') {
+                cursor++;
+                System.out.printf("%-16s F -> id\n", new String(input, cursor, input.length - cursor));
+                return true;
+            } else
+                return false;
+        } else
+            return false;
+    }
+}
