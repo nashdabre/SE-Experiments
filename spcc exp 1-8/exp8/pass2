@@ -1,0 +1,37 @@
+with open("copyfile.txt", "r") as fp1, \
+        open("mnt.txt", "r") as fp2, \
+        open("mdt.txt", "r") as fp3, \
+        open("expandedSource.txt", "w") as fp4:
+    
+    label, opcode, operand = fp1.readline().split()
+    
+    while opcode != "END":
+        if opcode in ["START", "USING", "DC", "DS"]:
+            fp4.write(f"{label} {opcode} {operand}\n")
+        else:
+            flag = False
+            for line in fp2:
+                mntc, macroname, mdtc = line.split()
+                if opcode == macroname:
+                    flag = True
+                    break
+
+            if flag:
+                for line in fp3:
+                    mdtmdtc, ignore, mdtlabel, mdtvalue = line.split()
+                    if mdtc == mdtmdtc:
+                        break
+
+                for line in fp3:
+                    mdtmdtc, ignore, mdtlabel, mdtvalue = line.split()
+                    if mdtlabel == "MEND":
+                        break
+                    fp4.write(f"{ignore} {mdtlabel} {mdtvalue}\n")
+            else:
+                fp4.write(f"{label} {opcode} {operand}\n")
+            fp3.seek(0)
+            fp2.seek(0)
+
+        label, opcode, operand = fp1.readline().split()
+
+    fp4.write(f"{label} {opcode} {operand}\n")
