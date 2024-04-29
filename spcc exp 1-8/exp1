@@ -1,0 +1,150 @@
+import java.util.Scanner;
+
+class SymbolEntry {
+    Object addr;
+    char symbol;
+    String type;
+    int modified; // Flag to indicate if the symbol has been modified
+
+    public SymbolEntry() {
+        this.addr = null;
+        this.symbol = '\0';
+        this.type = "";
+        this.modified = 0;
+    }
+}
+
+public class SymbolTable {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int tableSize = 0;
+        SymbolEntry[] symbolTable = new SymbolEntry[50]; // Assuming maximum of 50 symbols
+
+        System.out.println("Enter Expression:");
+        String input = scanner.nextLine();
+        
+        System.out.println("Given Expression: " + input);
+        System.out.println("\nSymbol Table");
+        System.out.println("Symbol \t addr \t type");
+
+        for (char c : input.toCharArray()) {
+            insertSymbol(symbolTable, tableSize, c);
+            tableSize++;
+        }
+
+        int choice;
+        do {
+            System.out.println("\n1. Insert\n2. Display\n3. Delete\n4. Search\n5. Modify\n0. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter symbol to insert: ");
+                    char symbol = scanner.next().charAt(0);
+                    insertSymbol(symbolTable, tableSize, symbol);
+                    tableSize++;
+                    break;
+                case 2:
+                    displaySymbolTable(symbolTable, tableSize);
+                    break;
+                case 3:
+                    System.out.print("Enter symbol to delete: ");
+                    symbol = scanner.next().charAt(0);
+                    deleteSymbol(symbolTable, symbol, tableSize);
+                    tableSize--;
+                    break;
+                case 4:
+                    System.out.print("Enter symbol to search: ");
+                    symbol = scanner.next().charAt(0);
+                    searchSymbol(symbolTable, symbol, tableSize);
+                    break;
+                case 5:
+                    System.out.print("Enter symbol to modify: ");
+                    char oldSymbol = scanner.next().charAt(0);
+                    modifySymbol(symbolTable, oldSymbol, oldSymbol, tableSize);
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please enter a valid option.");
+            }
+        } while (choice != 0);
+
+        // Free dynamically allocated memory (not required in Java)
+    }
+
+    static void insertSymbol(SymbolEntry[] symbolTable, int size, char symbol) {
+        SymbolEntry entry = new SymbolEntry();
+        entry.addr = new Object();
+        entry.symbol = symbol;
+
+        if (Character.isAlphabetic(symbol)) {
+            entry.type = "Identifier";
+        } else if (Character.isDigit(symbol)) {
+            entry.type = "Numeric Identifier";
+        } else {
+            entry.type = "Operator";
+        }
+
+        System.out.println(symbol + "\t" + entry.addr + "\t" + entry.type);
+        symbolTable[size] = entry;
+    }
+
+    static void displaySymbolTable(SymbolEntry[] symbolTable, int size) {
+        System.out.println("Symbol \t addr \t type");
+        for (int i = 0; i < size; i++) {
+            SymbolEntry entry = symbolTable[i];
+            if (entry.modified == 0) {
+                System.out.println(entry.symbol + "\t" + entry.addr + "\t" + entry.type);
+            } else {
+                System.out.println(entry.symbol + "\t" + entry.addr + "\t" +
+                        (Character.isAlphabetic(entry.symbol) ? "Modified Identifier" : "Modified Operator"));
+            }
+        }
+    }
+
+    static void deleteSymbol(SymbolEntry[] symbolTable, char symbol, int size) {
+        for (int i = 0; i < size; i++) {
+            if (symbolTable[i].symbol == symbol) {
+                symbolTable[i].addr = null;
+                System.out.println(symbol + "\t" + symbolTable[i].addr + "\t" + symbolTable[i].type + " deleted");
+
+                // Shift elements to fill the gap
+                for (int j = i; j < size - 1; j++) {
+                    symbolTable[j] = symbolTable[j + 1];
+                }
+                symbolTable[size - 1] = null;
+                return;
+            }
+        }
+        System.out.println(symbol + " not found in the symbol table.");
+    }
+
+    static void searchSymbol(SymbolEntry[] symbolTable, char symbol, int size) {
+        for (int i = 0; i < size; i++) {
+            if (symbolTable[i].symbol == symbol) {
+                System.out.println(symbol + "\t" + symbolTable[i].addr + "\t" + symbolTable[i].type + " found");
+                return;
+            }
+        }
+        System.out.println(symbol + " not found in the symbol table.");
+    }
+
+    static void modifySymbol(SymbolEntry[] symbolTable, char oldSymbol, char newSymbol, int size) {
+        for (int i = 0; i < size; i++) {
+            if (symbolTable[i].symbol == oldSymbol && symbolTable[i].modified == 0) {
+                symbolTable[i].symbol = newSymbol;
+                if (Character.isAlphabetic(newSymbol)) {
+                    symbolTable[i].type = "Modified Identifier";
+                } else {
+                    symbolTable[i].type = "Modified Operator";
+                }
+                System.out.println(newSymbol + "\t" + symbolTable[i].addr + "\t" + symbolTable[i].type);
+                symbolTable[i].modified = 1; // Set the modified flag to 1 for the new symbol
+                return;
+            }
+        }
+        System.out.println(oldSymbol + " not found in the symbol table or already modified.");
+    }
+}
